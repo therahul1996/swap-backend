@@ -97,56 +97,49 @@ app.get('/transaction', transactionLimiter, async (req, res) => {
         res.status(500).json({ error: 'Error fetching approve transaction' });
     }
 });
-app.get('/transaction', async (req, res) => {
-    const { networkId } = req.query;
-
-    if (!networkId) {
-        return res.status(400).json({ error: 'Missing networkId' });
+app.get('/swap', async (req, res) => {
+    const { networkId, src, dst, amount, from, slippage, disableEstimate, allowPartialFill } = req.query;
+    if (!from) {
+        return res.status(400).json({ error: 'Missing wallet address' });
     }
 
     try {
-        const url = `https://api.1inch.dev/swap/v6.0/${networkId}/approve/transaction`;
+        const url = `https://api.1inch.dev/swap/v6.0/${networkId}/swap`;
         const options = {
             headers: {
                 accept: 'application/json',
                 Authorization: `Bearer ${process.env.INCH_API_KEY}`,
             },
+            params: {
+                src,
+                dst,
+                amount,
+                from,
+                slippage,
+                disableEstimate,
+                allowPartialFill
+            },
         };
-
-        // Use the retry function
         const response = await fetchWithRetry(url, options);
         res.json(response.data);
     } catch (error) {
-        console.error('Error fetching approve transaction:', error);
-        res.status(500).json({ error: 'Error fetching approve transaction' });
+        console.error('Error fetching swap:', error);
+
+        // Send the error details back to the frontend
+        if (error.response && error.response.data) {
+            // Pass the API's error message and description
+            return res.status(error.response.status).json({
+                error: error.response.data.error,
+                description: error.response.data.description,
+            });
+        }
+
+        // Fallback if no specific error details are available
+        res.status(500).json({ error: 'Unexpected error occurred' });
     }
 });
-// app.get('/transaction', async (req, res) => {
-//     const { networkId } = req.query;
 
-//     // Validate that required query parameters are present
-//     if (!networkId) {
-//         return res.status(400).json({ error: 'Missing networkId' });
-//     }
 
-//     try {
-//         const response = await axios.get(`https://api.1inch.dev/swap/v6.0/${networkId}/approve/transaction`, {
-//             headers: {
-//                 'accept': 'application/json',
-//                 'Authorization': `Bearer ${process.env.INCH_API_KEY}`,
-//             },
-//             params: {},
-//         });
-
-//         // Send back the allowance data from the API response
-//         res.json(response.data);
-
-//     } catch (error) {
-//         // Handle errors from API request
-//         console.error('Error fetching approve transaction:', error);
-//         res.status(500).json({ error: 'Error fetching approve transaction:' });
-//     }
-// });
 Moralis.start({
     apiKey: process.env.MORALIS_KEY,
 }).then(
