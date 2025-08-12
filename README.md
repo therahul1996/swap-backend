@@ -24,10 +24,10 @@ This is an **Express.js backend** for interacting with the [1inch API](https://d
 You can explore all API endpoints via Swagger UI:  
 🔗 **[Swagger Docs](https://swap-backend-rq50.onrender.com/api-docs)**
 
-## Installation
+<!-- ## Installation -->
 
-1. Clone the repository:
+<!-- 1. Clone the repository:
    ```bash
    git clone https://github.com/<your-username>/<your-repo>.git
    cd swap-backend
-   ```
+   ``` -->
